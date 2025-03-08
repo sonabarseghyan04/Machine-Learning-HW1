@@ -1,0 +1,36 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+from sklearn.datasets import make_classification
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import make_moons
+from sklearn import datasets
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import make_circles
+
+
+# Generating a non-linear dataset using make_circles(this is for generating linearly non-seperable data)
+X, y = make_circles(n_samples=1000, noise=0.1, factor=0.3, random_state=42)
+
+#Splitting the data into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42)
+
+# Standardizing the data
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Training the model
+svm = SVC(kernel='rbf', C=1, gamma='scale') 
+svm.fit(X_train_scaled, y_train)
+
+# Making predictions
+y_pred = svm.predict(X_test_scaled)
+
+# Calculating the accuracy
+print(accuracy_score(y_test, y_pred))
