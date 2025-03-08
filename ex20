@@ -1,0 +1,35 @@
+# First we will initialize the data manually.
+years = np.array([5.6, 7.2, 3.1, 4.4, 1.0, 6.7, 1.2, 5.4, 9.8, 2.2,
+              3.5, 20.0, 17.6, 1.3, 1.7, 2.4, 5.4, 6.8, 4.9, 19.0])
+salary = np.array([75000, 120000, 47000, 37000, 16000, 140000, 14000, 80000, 150000, 16000,
+              50000, 160000, 165000, 17500, 20000, 20000, 84000, 93000, 75000, 140000])
+
+# Now initialize hyperparameters
+learn_rate = 0.01 #choosing this parameter, as a higher one lead to overflow
+iter = 1200
+
+# Initialize parameters setting them to 0 initially
+slope = 0  
+intercept = 0  
+
+#The main algorithm
+n = len(years)  
+for i in range(iter):
+    y_pred = slope * years + intercept
+#computing the gradients
+    dm = (-2/n) * np.sum(years * (salary - y_pred)) 
+    db = (-2/n) * np.sum(salary - y_pred)  
+
+    #updating parameters
+    slope -= learn_rate * dm
+    intercept -= learn_rate * db
+
+    # Computing the loss for each iteration
+    loss = np.mean((salary - y_pred) ** 2)
+
+def predict_the_salary_given_years(years):
+    return slope * years + intercept
+
+#testing  
+predicted_salary = predict_the_salary_given_years(20)
+print(f"Predicted salary for 20 years of experience: {predicted_salary:.4f}")
