@@ -1,0 +1,49 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+from sklearn.datasets import make_classification
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import make_moons
+from sklearn import datasets
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import make_circles
+
+
+#Let us generate a non-linear data: 150 points from -20 and 20
+np.random.seed(500)
+X = np.linspace(-20, 20, 150) 
+y = 5 * X**2 + 10 * X - 6   # just a random polynomial function that came to my mind
+
+#With this step we create a matrix that will store the X**0, X**1, X**2 values in our case, because i chose a 
+#quadratic function
+degree = 2  
+matrix = np.vstack([X**i for i in range(degree+1)]).T 
+
+#Now we are initializing weights to fit the polynomial regression
+m, n = matrix.shape
+theta = np.zeros(n)
+
+#Now we are initiating the learning rate and iterations count
+learn_rate = 0.00001
+iter = 1200
+
+# The main algorithm: doing gradient descent for polynomial regression
+for i in range(iter):
+    y_pred = np.dot(matrix, theta)
+    error = y_pred - y
+    gradients = (2/m) * np.dot(matrix.T, error)
+    theta -= learn_rate * gradients
+    
+# A function to predict y values for any given X
+def predict(x_value):
+    matrix = np.array([x_value**i for i in range(degree+1)]) 
+    return np.dot(matrix, theta) 
+
+#Testing
+predicted_y = predict(20)
+print(f"Predicted Y for x = 20 is {predicted_y:.4f}")
