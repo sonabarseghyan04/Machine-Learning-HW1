@@ -1,0 +1,81 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+from sklearn.datasets import make_classification
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import make_moons
+from sklearn import datasets
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import make_circles
+
+# First we are writing the softmax function. This function turns the logit values into probabilities. It takes the 
+# set of values and makes them probabilities so that they sum up to 1. The following function is used: 
+# Pi = exp(Zi)/sum(exp(Zj) from j to n), where each i is a class and Zi are corresponding class logit values.
+ 
+def softmax(z):
+    exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))  
+    return exp_z / np.sum(exp_z, axis=1, keepdims=True)
+
+# One-hot Encoding process: converting the categorical labels into a matrix consisting of 0 and 1s, where in each 
+# row the 1 corresponds to one certain class.
+def one_hot_encode(y, num_classes):
+    m = len(y)
+    y_one_hot = np.zeros((m, num_classes))
+    y_one_hot[np.arange(m), y] = 1
+    return y_one_hot
+
+#Now we are calculating the loss. For each sample, the loss is calculated as -(sum(actual_encoded value * 
+# log(predicted prob))). Then we get the average of it.
+def loss(actual_y, predicted_y):
+    m = actual_y.shape[0]
+    return -np.sum(actual_y * np.log(predicted_y + 1e-8)) / m  
+
+
+# Implementing the algorithm itself.
+def softmax_regression(feature_matrix, target_labels, learning_rate=0.2, epochs=1200, early_stopping=True):
+    m, n = feature_matrix.shape  
+    num_classes = len(np.unique(target_labels)) 
+    y_one_hot = one_hot_encode(target_labels, num_classes) #using the above defined function
+    
+    # Choosing weights and bias
+    W = np.random.randn(n, num_classes) * 0.01
+    b = np.zeros((1, num_classes))
+
+    prev_loss = float('inf')  #Keeping loss of previous iteration
+    for i in range(epochs):
+        logits = np.dot(feature_matrix, W) + b
+        y_pred = softmax(logits)
+
+        loss_ = loss(y_one_hot, y_pred) #with the above defined function
+
+        # Computing gradients for each iteration
+        dW = (1/m) * np.dot(feature_matrix.T, (y_pred - y_one_hot))
+        db = (1/m) * np.sum(y_pred - y_one_hot, axis=0, keepdims=True)
+
+        # Updating parameters for each iteration
+        W -= learning_rate * dW
+        b -= learning_rate * db
+
+        #Setting the condition to stop if the loss is less than a certain threshold.
+        if early_stopping and abs(prev_loss - loss_) < 1e-4:
+            print(f"Early stopping at epoch {i}, Loss: {loss_:.4f}")
+            break
+
+        prev_loss = loss_
+
+        # Print every 30 epochs
+        if i % 30 == 0:
+            print(f"Epoch {i}, Loss: {loss_:.4f}")
+
+    return W, b
+
+#testing
+np.random.seed(42)
+X_train = np.random.rand(150, 5)
+y_train = np.random.randint(0, 5, 150)
+W, b = softmax_regression(X_train, y_train, learning_rate=0.1, epochs=1200)
